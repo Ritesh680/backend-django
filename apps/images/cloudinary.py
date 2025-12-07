@@ -1,6 +1,4 @@
-# Cloudinary configuration
 import cloudinary
-
 from club_config.settings.env import env
 
 cloudinary.config(
