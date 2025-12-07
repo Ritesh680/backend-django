@@ -8,6 +8,7 @@ class User(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=200)
+    avatar = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -15,11 +16,15 @@ class User(models.Model):
         return self.name
 
     @staticmethod
-    def create_user(name, email, password):
-        hashed_password = make_password(password)
-        user = User(name=name, email=email, password=hashed_password)
-        user.save()
-        return user
+    def create_user(name, email, password, avatar):
+        try:
+            hashed_password = make_password(password)
+            user = User(name=name, email=email, password=hashed_password, avatar=avatar)
+            user.save()
+            return user
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            return None
 
     @staticmethod
     def authenticate(email, password):

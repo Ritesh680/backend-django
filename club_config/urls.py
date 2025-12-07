@@ -15,12 +15,30 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import os
 from django.contrib import admin
 from django.urls import include, path
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("apps.users.urls")),
-    path("api/", include("apps.events.urls")),
-    path("api/", include("apps.images.urls")),
 ]
+
+# Dynamically include URLs from all apps in the apps folder
+apps_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "apps")
+if os.path.exists(apps_dir):
+    for app in os.listdir(apps_dir):
+        app_path = os.path.join(apps_dir, app)
+        urls_path = os.path.join(app_path, "urls.py")
+        # Only include directories that have a urls.py file and are not __pycache__
+        if (
+            os.path.isdir(app_path)
+            and app != "__pycache__"
+            and not app.startswith("__")
+            and os.path.exists(urls_path)
+        ):
+            try:
+                urlpatterns.append(path("api/", include(f"apps.{app}.urls")))
+            except Exception:
+                # Skip apps that can't be imported (e.g., missing urls module)
+                pass
